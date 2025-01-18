@@ -1,11 +1,11 @@
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Ftravisghansen%2Fhass-pfsense%2Fbadge%3Fref%3Dmain&style=for-the-badge)](https://actions-badge.atrox.dev/travisghansen/hass-pfsense/goto?ref=main)
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
-# hass-pfsense
+# hass-OpnSense
 
-Join `pfSense` with `home-assistant`!
+Join `OpnSense` with `home-assistant`!  -- this is a fork of the hass-pfsense project that is modified for use with the OpnSense router operating system. OpnSense itself is a fork of the pfSense project. This is currently a work in progress and is not usable at this point. I am doing this as I prefer the OpnSense project and would like the ability to add the information in to my HomeAssistant system. 
 
-pfSense is a free and open source firewall and router that also features unified threat management, load balancing, multi WAN, and more.
+OpnSense is a free and open source firewall and router that also features unified threat management, load balancing, multi WAN, and more.
 
 `hass-pfsense` uses the built-in `xmlrpc` service of `pfSense` for all
 interactions. No special plugins or software needs to be installed to use the
