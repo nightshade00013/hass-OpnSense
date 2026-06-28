@@ -1,0 +1,12 @@
+{
+  "domain": "opnsense",
+  "name": "OpnSense",
+  "codeowners": ["@opnsense"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://docs.opnsense.org/",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/opnsense/core/issues",
+  "requirements": ["mac-vendor-lookup>=0.1.11"],
+  "version": "0.1.0"
+}

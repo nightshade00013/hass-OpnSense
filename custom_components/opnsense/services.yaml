@@ -1,0 +1,124 @@
+      name: Entity ID
+      description: OpnSense entity id
+      example: "binary_sensor.opnsense_localdomain_pending_notices_present"
+
+kill_states:
+  name: Kill states
+  description: Remove all state table entries for source, or from source to destination
+  fields:
+    entity_id:
+      name: Entity ID
+      description: OpnSense entity id
+      example: "binary_sensor.opnsense_localdomain_pending_notices_present"
+
+    source:
+      name: Source
+      description: Host or network
+      required: true
+      advanced: false
+      example: "0.0.0.0/0"
+      default: ""
+      
+    destination: 
+      name: Destination
+      description: Host or network (optional)
+      required: false
+      advanced: false
+      example: "192.168.0.1/24"
+      default: ""
+
+system_halt:
+  name: Halt system
+  description: Halts the system.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: OpnSense entity id
+      example: "binary_sensor.opnsense_localdomain_pending_notices_present"
+
+system_reboot:
+  name: Reboot system
+  description: Reboots the system.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: OpnSense entity id
+      example: "binary_sensor.opnsense_localdomain_pending_notices_present"
+
+send_wol:
+  name: Send WOL
+  description: Sends wake-on-lan magic packet.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: OpnSense entity id
+      example: "binary_sensor.opnsense_localdomain_pending_notices_present"
+
+    interface:
+      name: Interface Name
+      description: The name of the interface.
+      required: true
+      advanced: false
+      example: "wan|lan|opt1|opt2|..."
+      default: ""
+
+    mac:
+      name: MAC Address
+      description: The target mac address.
+      required: true
+      advanced: false
+      example: ""
+      default: ""
+
+set_default_gateway:
+  name: Set Default Gateway
+  description: Set the default gateway for ipv4 and ipv6.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: OpnSense entity id
+      example: "binary_sensor.opnsense_localdomain_pending_notices_present"
+
+    gateway:
+      name: Gateway Name
+      description: The name of the gateway.
+      required: true
+      advanced: false
+      example: "GW_WAN, '-' is None and '' is Automatice"
+      default: ""
+
+    ip_version:
+      name: IP Version
+      description: The IP version to update.
+      required: true
+      advanced: false
+      example: "4|6"
+      default: "4"
+
+exec_php:
+  name: Exec PHP Script
+  description: Execute a fully php script.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: OpnSense entity id
+      example: "binary_sensor.opnsense_localdomain_pending_notices_present"
+
+    script:
+      name: Gateway Name
+      description: The name of the gateway.
+      required: true
+      advanced: false
+      example: "GW_WAN, '-' is None and '' is Automatice"
+      default: ""
+
+exec_command:
+  name: Exec Command
+  description: Execute a command.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: OpnSense entity id
+      example: "binary_sensor.opnsense_localdomain_pending_notices_present"
+
+    command:
