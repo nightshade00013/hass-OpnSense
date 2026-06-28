@@ -1,4 +1,4 @@
-"""pfSense integration."""
+"""OpnSense integration."""
 
 import logging
 
@@ -103,37 +103,3 @@ class PfSenseBinarySensor(PfSenseEntity, BinarySensorEntity):
     @property
     def extra_state_attributes(self):
         return None
-
-
-class PfSenseCarpStatusBinarySensor(PfSenseBinarySensor):
-    @property
-    def is_on(self):
-        state = self.coordinator.data
-        try:
-            return state["carp_status"]
-        except KeyError:
-            return STATE_UNKNOWN
-
-
-class PfSensePendingNoticesPresentBinarySensor(PfSenseBinarySensor):
-    @property
-    def is_on(self):
-        state = self.coordinator.data
-        try:
-            return state["notices"]["pending_notices_present"]
-        except KeyError:
-            return STATE_UNKNOWN
-
-    @property
-    def device_class(self):
-        return BinarySensorDeviceClass.PROBLEM
-
-    @property
-    def extra_state_attributes(self):
-        state = self.coordinator.data
-        attrs = {}
-
-        notices = dict_get(state, "notices.pending_notices")
-        attrs["pending_notices"] = notices
-
-        return attrs
