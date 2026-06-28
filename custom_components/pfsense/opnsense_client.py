@@ -1,22 +1,19 @@
-"""OpnSense API client for hass-OpnSense
+"""OpnSense API client for hass-OpnSense (API-only variant)
 
 Provides:
-- async detection of API vs XML-RPC
-- async call_api for /api/ endpoints
-- async xmlrpc_call for legacy xmlrpc.php endpoints
+- async detection of OpnSense /api/ endpoints
+- async call_api for /api/{package}/{controller}/{action}/
 
-Designed to be thin and dependency-free (uses aiohttp and stdlib xmlrpc.client).
+This simplified client drops legacy XML-RPC support (xmlrpc.php) as requested.
 """
 
 from __future__ import annotations
 
-import asyncio
 import base64
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import aiohttp
-import xmlrpc.client
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,7 +35,7 @@ class OpnSenseClient:
         self.verify_ssl = verify_ssl
         self.timeout = timeout
         self._session: Optional[aiohttp.ClientSession] = None
-        self.mode: Optional[str] = None  # 'api' or 'xmlrpc'
+        self.mode: Optional[str] = None  # 'api'
 
     async def _get_session(self) -> aiohttp.ClientSession:
         if self._session is None or self._session.closed:
@@ -57,7 +54,7 @@ class OpnSenseClient:
     async def detect_api(self) -> str:
         """Detect whether the host exposes the OpnSense /api/ endpoints.
 
-        Returns 'api' or 'xmlrpc'. Raises on transport error.
+        Returns 'api' on success. Raises RuntimeError on failure to detect a usable API.
         """
         session = await self._get_session()
         headers = self._auth_header() or {}
@@ -73,30 +70,12 @@ class OpnSenseClient:
                 _LOGGER.debug("API probe returned status %s and body: %s", resp.status, text[:200])
         except aiohttp.ClientResponseError as exc:
             _LOGGER.debug("API probe response error: %s", exc)
+            raise
         except Exception as exc:  # network / SSL errors
             _LOGGER.debug("API probe network error: %s", exc)
+            raise
 
-        # try xmlrpc probe
-        xmlrpc_url = f"{self.base_url}/xmlrpc.php"
-        body = xmlrpc.client.dumps(("system.listMethods",), methodname=None)
-        headers_rpc = {"Content-Type": "text/xml"}
-        if headers := self._auth_header():
-            headers_rpc.update(headers)
-        _LOGGER.debug("Falling back to xmlrpc probe at %s", xmlrpc_url)
-        try:
-            async with session.post(xmlrpc_url, data=body, headers=headers_rpc, ssl=self.verify_ssl) as resp:
-                text = await resp.text()
-                if resp.status == 200 and text.strip().startswith("<?xml"):
-                    _LOGGER.debug("Detected xmlrpc endpoint at %s", xmlrpc_url)
-                    self.mode = "xmlrpc"
-                    return "xmlrpc"
-                _LOGGER.debug("xmlrpc probe returned status %s and body: %s", resp.status, text[:200])
-        except Exception as exc:
-            _LOGGER.debug("xmlrpc probe network error: %s", exc)
-
-        # default to api if uncertain
-        self.mode = "api"
-        return "api"
+        raise RuntimeError("OpnSense API not detected at provided base_url")
 
     async def call_api(
         self,
@@ -114,10 +93,6 @@ class OpnSenseClient:
         if self.mode is None:
             await self.detect_api()
 
-        if self.mode == "xmlrpc":
-            # No generic mapping available; raise to let caller choose xmlrpc method explicitly
-            raise RuntimeError("API mode is xmlrpc; use xmlrpc_call() instead")
-
         url = f"{self.base_url}/api/{package}/{controller}/{action}/"
         headers = self._auth_header() or {}
         session = await self._get_session()
@@ -133,32 +108,6 @@ class OpnSenseClient:
                     return text
             _LOGGER.error("OpnSense API %s %s failed: %s - %s", method.upper(), url, resp.status, text[:1000])
             resp.raise_for_status()
-
-    async def xmlrpc_call(self, method: str, params: Optional[Tuple] = None) -> Any:
-        """Perform an XML-RPC call against /xmlrpc.php.
-
-        Uses xmlrpc.client to build/parse payloads, and aiohttp for transport.
-        """
-        session = await self._get_session()
-        xmlrpc_url = f"{self.base_url}/xmlrpc.php"
-        params = params or ()
-        body = xmlrpc.client.dumps(params, methodname=method)
-        headers = {"Content-Type": "text/xml"}
-        if auth := self._auth_header():
-            headers.update(auth)
-        _LOGGER.debug("XMLRPC call %s -> %s", method, xmlrpc_url)
-        async with session.post(xmlrpc_url, data=body, headers=headers, ssl=self.verify_ssl) as resp:
-            text = await resp.text()
-            if resp.status != 200:
-                _LOGGER.error("XMLRPC %s returned %s: %s", method, resp.status, text[:1000])
-                resp.raise_for_status()
-            try:
-                params, methodname = xmlrpc.client.loads(text)
-                # xmlrpc.client.loads returns a tuple (params, methodname)
-                return params[0] if params else None
-            except Exception as exc:
-                _LOGGER.exception("Failed parsing xmlrpc response: %s", exc)
-                raise
 
     async def close(self) -> None:
         if self._session is not None and not self._session.closed:
