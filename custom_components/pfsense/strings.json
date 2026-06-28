@@ -1,9 +1,9 @@
 {
-  "title": "Connect to the pfSense firewall / router",
+  "title": "Connect to the OpnSense firewall / router",
   "config": {
     "step": {
       "user": {
-        "title": "Connect to the pfSense firewall / router",
+        "title": "Connect to the OpnSense firewall / router",
         "data": {
           "url": "URL",
           "username": "Username",
